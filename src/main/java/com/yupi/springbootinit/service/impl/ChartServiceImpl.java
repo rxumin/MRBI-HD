@@ -1,6 +1,5 @@
 package com.yupi.springbootinit.service.impl;
 
-import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yupi.springbootinit.common.ErrorCode;
 import com.yupi.springbootinit.exception.BusinessException;
@@ -14,7 +13,6 @@ import com.yupi.springbootinit.mapper.ChartMapper;
 import com.yupi.springbootinit.service.UserService;
 import com.yupi.springbootinit.utils.ExcelUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,7 +49,9 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
     @Override
     public BiResponse genChart(MultipartFile multipartFile, String name, String goal, String chartType, HttpServletRequest request) {
         long biModelId = 1659171950288818178L;
-        User loginUser = userService.getLoginUser(request);
+//        User loginUser = userService.getLoginUser(request);
+        User loginUser = new User();
+        loginUser.setId(1L);
         // 分析需求：
         // 分析网站用户的增长情况
         // 原始数据：
@@ -99,6 +99,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
 
 
         BiResponse biResponse = new BiResponse();
+        biResponse.setChartId(chartID);
         return biResponse;
     }
 
