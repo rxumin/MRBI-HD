@@ -35,8 +35,6 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
 
     @Resource
     private UserService userService;
-    @Resource
-    private ChartService chartService;
 
     @Resource
     private ThreadPoolExecutor threadPoolExecutor;
@@ -117,7 +115,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         updateChart.setGenChart(genChart);
         updateChart.setGenResult(genResult);
         updateChart.setStatus("succeed");
-        boolean updateResult = chartService.updateById(updateChart);
+        boolean updateResult = this.updateById(updateChart);
         if(!updateResult){
             log.error(chartId+"更新最succeed失败");
         }
@@ -127,7 +125,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         Chart updateChart = new Chart();
         updateChart.setId(chartId);
         updateChart.setStatus("running");
-        boolean updateResult = chartService.updateById(updateChart);
+        boolean updateResult = this.updateById(updateChart);
         if(!updateResult){
             log.error(chartId+"更新图标running失败");
         }
@@ -141,7 +139,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         chart.setChartType(chartType);
         chart.setStatus("wait");
         chart.setUserId(userId);
-        boolean saveResult = chartService.save(chart);
+        boolean saveResult = this.save(chart);
         ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "图表保存失败");
         return chart.getId();
 
