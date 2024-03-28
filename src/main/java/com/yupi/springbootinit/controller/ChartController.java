@@ -241,10 +241,8 @@ public class ChartController {
         // 校验
         check(multipartFile,goal, name);
 
-
-//        User loginUser = userService.getLoginUser(request);
-
-        BiResponse biResponse = chartService.genChart(multipartFile,name,goal,chartType);
+        // 异步
+        BiResponse biResponse = chartService.genChart(multipartFile,name,goal,chartType,request);
 
         return ResultUtils.success(biResponse);
     }
