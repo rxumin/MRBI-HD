@@ -49,9 +49,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
     @Override
     public BiResponse genChart(MultipartFile multipartFile, String name, String goal, String chartType, HttpServletRequest request) {
         long biModelId = 1659171950288818178L;
-//        User loginUser = userService.getLoginUser(request);
-        User loginUser = new User();
-        loginUser.setId(1L);
+        User loginUser = userService.getLoginUser(request);
         // 分析需求：
         // 分析网站用户的增长情况
         // 原始数据：
