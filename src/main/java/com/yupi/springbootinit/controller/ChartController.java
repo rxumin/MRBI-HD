@@ -21,6 +21,7 @@ import com.yupi.springbootinit.model.entity.Chart;
 import com.yupi.springbootinit.model.entity.User;
 import com.yupi.springbootinit.model.enums.FileUploadBizEnum;
 import com.yupi.springbootinit.model.vo.BiResponse;
+import com.yupi.springbootinit.mqdemo.BiMessageProducer;
 import com.yupi.springbootinit.service.ChartService;
 import com.yupi.springbootinit.service.UserService;
 import com.yupi.springbootinit.utils.ExcelUtils;
@@ -59,6 +60,8 @@ public class ChartController {
     @Resource
     private AiManager aiManager;
 
+    @Resource
+    private BiMessageProducer biMessageProducer;
     private final static Gson GSON = new Gson();
 
     // region 增删改查
@@ -223,6 +226,47 @@ public class ChartController {
     }
 
 
+    /**
+     * 智能分析（异步消息队列）
+     *
+     * @param multipartFile
+     * @param genChartByAiRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/gen/async/mq")
+    public BaseResponse<BiResponse> genChartByAiAsyncMq(@RequestPart("file") MultipartFile multipartFile,
+                                                        GenChartByAiRequest genChartByAiRequest, HttpServletRequest request) {
+
+        String name = genChartByAiRequest.getName();
+        String goal = genChartByAiRequest.getGoal();
+        String chartType = genChartByAiRequest.getChartType();
+
+        // 校验文件
+        check(multipartFile,goal,name);
+
+
+        User loginUser = userService.getLoginUser(request);
+        // 限流判断，每个用户一个限流器
+//        redisLimiterManager.doRateLimit("genChartByAi_" + loginUser.getId());
+
+        long biModelId = 1659171950288818178L;
+        // 分析需求：
+        // 分析网站用户的增长情况
+        // 原始数据：
+        // 日期,用户数
+        // 1号,10
+        // 2号,20
+        // 3号,30
+
+        // 给AI的原始数据
+        long newChartId = chartService.toAI(multipartFile, name, goal, chartType, loginUser);
+
+        biMessageProducer.sendMessage(String.valueOf(newChartId));
+        BiResponse biResponse = new BiResponse();
+        biResponse.setChartId(newChartId);
+        return ResultUtils.success(biResponse);
+    }
 
     /**
      * 智能分析 （异步）

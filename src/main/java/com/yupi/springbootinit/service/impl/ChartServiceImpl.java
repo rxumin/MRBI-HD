@@ -37,6 +37,37 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
     @Resource
     private ThreadPoolExecutor threadPoolExecutor;
 
+    @Override
+    public long toAI(MultipartFile multipartFile, String name, String goal, String chartType, User loginUser) {
+        // 构造用户输入
+        StringBuilder userInput = new StringBuilder();
+        userInput.append("分析需求：").append("\n");
+
+        // 拼接分析目标
+        String userGoal = goal;
+        if (StringUtils.isNotBlank(chartType)) {
+            userGoal += "，请使用" + chartType;
+        }
+        userInput.append(userGoal).append("\n");
+        userInput.append("原始数据：").append("\n");
+        // 压缩后的数据
+        String csvData = ExcelUtils.excelToCsv(multipartFile);
+        userInput.append(csvData).append("\n");
+
+        // 插入到数据库
+        Chart chart = new Chart();
+        chart.setName(name);
+        chart.setGoal(goal);
+        chart.setChartData(csvData);
+        chart.setChartType(chartType);
+        chart.setStatus("wait");
+        chart.setUserId(loginUser.getId());
+        boolean saveResult = this.save(chart);
+        ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "图表保存失败");
+        long newChartId = chart.getId();
+        return newChartId;
+    }
+
     /**
      * 异步
      * @param multipartFile
